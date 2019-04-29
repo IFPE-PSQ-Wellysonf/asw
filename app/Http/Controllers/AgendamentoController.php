@@ -18,23 +18,46 @@ class AgendamentoController extends Controller
                             ->pluck('id');
         $aulaRegular = Aulareg::whereIn('id_periodo', $periodo)
                                 ->get();
-
-
-        $fifth = countFridays(1,Carbon::now()->month,Carbon::now()->year);
-        dd($periodo,$aulaRegular,$fifth);
+        foreach($aulaRegular as $aula){
+            $agendamentosRegulares = $this->countAgend($aula->dia,Carbon::now()->month,Carbon::now()->year,$aula->inicio,$aula->fim);
+        }
+        dd($periodo,$aulaRegular,$agendamentosRegulares);
     }
 
-    public function convertHorarioRegular()
+    function convertHorarioRegular()
     {
         $periodo = Periodo::where('ano', Carbon::now()->year);
     }
 
-    function countFridays($day,$month,$year){
-        $ts=strtotime("first friday of $year-$month-01");
+    function countAgend($day,$month,$year,$timeStart,$timeEnd){
+        switch($day){
+            case 1:
+                $dia = 'monday';
+                break;
+            case 2:
+                $dia = 'tuesday';
+                break;
+            case 3:
+                $dia = 'wednesday';
+                break;
+            case 4:
+                $dia = 'thursday';
+                break;
+            case 5:
+                $dia = 'friday';
+                break;
+            case 6:
+                $dia = 'saturday';
+                break;
+            case 7:
+                $dia = 'sunday';
+                break;
+        }
+        $ts=strtotime("first $dia of $year-$month-01");
         $ls=strtotime('last day of '.$year.'-'.$month.'-01');
-        $fridays=array(date('Y-m-d', $ts));
+        $agend=array(date('Y-m-d ', $ts) . $timeStart);
         while(($ts=strtotime('+1 week', $ts))<=$ls){
-            $fridays[]=date('Y-m-d', $ts);
-        }return $fridays;
+            $agend[]=date('Y-m-d ',$ts) . $timeStart;
+        }return $agend;
     }
 }
