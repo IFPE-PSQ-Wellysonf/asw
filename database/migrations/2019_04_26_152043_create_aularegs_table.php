@@ -18,7 +18,7 @@ class CreateAularegsTable extends Migration
             $table->unsignedBigInteger('id_sala');
             $table->unsignedBigInteger('id_periodo');
             $table->unsignedBigInteger('id_responsavel');
-            $table->enum('dia', ['dom','seg','ter','qua','qui','sex','sab']);
+            $table->enum('dia', [1,2,3,4,5,6,7]); //Representação numérica ISO-8601 do dia da semana 1 (para Segunda) até 7 (para Domingo)
             $table->time('inicio');
             $table->time('fim');
             $table->timestamps();
