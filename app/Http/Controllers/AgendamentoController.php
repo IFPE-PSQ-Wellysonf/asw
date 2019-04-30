@@ -19,7 +19,7 @@ class AgendamentoController extends Controller
         $aulaRegular = Aulareg::whereIn('id_periodo', $periodo)
                                 ->get();
         foreach($aulaRegular as $aula){
-            $agendamentosRegulares = $this->countAgend($aula->dia,Carbon::now()->month,Carbon::now()->year,$aula->inicio,$aula->fim);
+            $agendamentosRegulares = $this->diasNoMes($aula->dia,Carbon::now()->month,Carbon::now()->year,$aula->inicio,$aula->fim);
         }
         dd($periodo,$aulaRegular,$agendamentosRegulares);
     }
@@ -29,7 +29,7 @@ class AgendamentoController extends Controller
         $periodo = Periodo::where('ano', Carbon::now()->year);
     }
 
-    function countAgend($day,$month,$year,$timeStart,$timeEnd){
+    function diasNoMes($day,$month,$year,$timeStart,$timeEnd){
         switch($day){
             case 1:
                 $dia = 'monday';
