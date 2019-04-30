@@ -16,12 +16,13 @@ class AgendamentoController extends Controller
                             ->where('inicio', '<=', Carbon::now()->format('Y-m-d'))
                             ->where('final', '>=', Carbon::now()->format('Y-m-d'))
                             ->pluck('id');
-        $aulaRegular = Aulareg::whereIn('id_periodo', $periodo)
+        $aulaRegular = Aulareg::with('responsavel')->whereIn('id_periodo', $periodo)
                                 ->get();
         foreach($aulaRegular as $aula){
-            $agendamentosRegulares = $this->diasNoMes($aula->dia,Carbon::now()->month,Carbon::now()->year,$aula->inicio,$aula->fim);
+            $descri = $aula->descricao . " (" . $aula->responsavel->name . ")";
+            $agendamentosRegulares = $this->diasNoMes($aula->id,$aula->dia,Carbon::now()->month,Carbon::now()->year,$aula->inicio,$aula->fim,$descri);
         }
-        dd($periodo,$aulaRegular,$agendamentosRegulares);
+        dd($agendamentosRegulares);
     }
 
     function convertHorarioRegular()
@@ -29,7 +30,7 @@ class AgendamentoController extends Controller
         $periodo = Periodo::where('ano', Carbon::now()->year);
     }
 
-    function diasNoMes($day,$month,$year,$timeStart,$timeEnd){
+    function diasNoMes($id,$day,$month,$year,$timeStart,$timeEnd,$description){
         switch($day){
             case 1:
                 $dia = 'monday';
@@ -55,9 +56,22 @@ class AgendamentoController extends Controller
         }
         $ts=strtotime("first $dia of $year-$month-01");
         $ls=strtotime('last day of '.$year.'-'.$month.'-01');
-        $agend=array(date('Y-m-d ', $ts) . $timeStart);
+        $agend=array();
+        $agend[]=[
+            'id' => "AR" . $id,
+            'title' => $description,
+            'start' => date('c',strtotime(date('Y-m-d ', $ts) . $timeStart)),
+            'end' => date('c',strtotime(date('Y-m-d ', $ts) . $timeEnd))
+        ];
         while(($ts=strtotime('+1 week', $ts))<=$ls){
-            $agend[]=date('Y-m-d ',$ts) . $timeStart;
+            $agend[]=[
+                'id' => "AR" . $id,
+                'title' => $description,
+                'start' => date('c',strtotime(date('Y-m-d ', $ts) . $timeStart)),
+                'end' => date('c',strtotime(date('Y-m-d ', $ts) . $timeEnd))
+            ];
+
+            /* date('c',strtotime(date('Y-m-d ', $ts) . $timeStart)); */
         }return $agend;
     }
 }

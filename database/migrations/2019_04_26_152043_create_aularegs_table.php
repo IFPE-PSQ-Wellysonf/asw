@@ -21,6 +21,7 @@ class CreateAularegsTable extends Migration
             $table->enum('dia', [1,2,3,4,5,6,7]); //Representação numérica ISO-8601 do dia da semana 1 (para Segunda) até 7 (para Domingo)
             $table->time('inicio');
             $table->time('fim');
+            $table->string('descricao');
             $table->timestamps();
             $table->foreign('id_sala')->references('id')->on('salas');
             $table->foreign('id_periodo')->references('id')->on('periodos');
